@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "compute.function.linux1": {
+      "group": "connections",
+      "type": "compute.function.linux"
+    }
+  }
+}

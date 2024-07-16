@@ -1,0 +1,78 @@
+@model IEnumerable<VotingApp.Models.Counts>
+
+@{
+    ViewData["Title"] = "Votes";
+}
+<script src="https://code.jquery.com/jquery-3.6.1.min.js" integrity="sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ=" crossorigin="anonymous"></script>
+
+<script>
+ 
+    function NewCandidate() {
+      var url =window.location.origin + "/api/Votes/Add/"+$("#candidate").val();                
+      $.ajax({
+          url: url,
+          type: 'PUT',
+          success: function (data) {                   
+              window.location.href = window.location.origin+"/Home/Votes";
+          },
+          error: function(error){
+              $("#error").text(JSON.stringify(error)).show();
+          }
+      });
+    }
+
+    function OnVote(id)
+    {
+        $("#message").text("Loading...");
+        var url =window.location.origin + "/api/Votes/Vote/"+id;
+        $.ajax({
+            url: url,
+            type: 'PUT',
+            success: function (data) {
+                // Do something with the result
+                @* $("#message").text("Successs").show(); *@
+                window.location.href = window.location.origin+"/Home/Votes";
+            },
+            error: function(error){
+                $("#error").text(JSON.stringify(error)).show();
+            }
+        });       
+}  
+  </script>
+
+<div class="text-center">
+    <p>Auto instrumenting ASP.NET Core with OpenTelemetry and Application Insights SDKs.</p>
+</div>
+
+<div class="alert alert-primary" role="alert" id="message"style="display: none;"></div>
+<div class="alert alert-danger" role="alert" id="error"style="display: none;"></div>
+
+<div class="container-fluid col-md-10 mt-3">
+    <div class="col mb-3">
+        <label>Candiate name: </label>
+        <input type="text" id="candidate" class="input-lg" plaeholder="Input a name" >
+        <button id="newVoteButton" class="btn-primary" onclick="NewCandidate()">Submit Candidate</button>
+    </div>
+      <table class="table table-bordered table-striped table-hover " id="list-votes">
+        <thead class=" text-white">
+          <tr>
+            <th>No.</th>
+            <th>Candiate</th>
+            <th>Count</th>      
+            <th style="width:150px;">Vote</th>
+          </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.ID</td>
+                    <td>@item.Candidate</td>
+                    <td>@item.Count</td>
+                    <td><button class="btn-primary" onclick="OnVote('@item.ID')">Give a Vote</button></td>
+                </tr>
+            }
+        </tbody>
+      </table>
+      <p class="text-danger" id="p-result-filter"></p>
+  </div>

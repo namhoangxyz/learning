@@ -1,0 +1,40 @@
+@host_name=localhost
+@port=8080
+@host={{host_name}}:{{port}}
+@client_id=m2m.client
+@scope=bankapi.read
+@client_secret=511536EF-F270-4058-80CA-1C89C192F69A
+@grant_type=client_credentials
+@token=eyJhbGciOiJSUzI1NiIsImtpZCI6IjE0RTE0ODI5MTc4ODYxNTg5MkE0RTA2RURENTM2OUY4IiwidHlwIjoiYXQrand0In0.eyJpc3MiOiJodHRwczovL2xvY2FsaG9zdDo4MDgwIiwibmJmIjoxNjk4MzkxMTg2LCJpYXQiOjE2OTgzOTExODYsImV4cCI6MTY5ODM5NDc4NiwiYXVkIjpbImJhbmthcGkiLCJodHRwczovL2xvY2FsaG9zdDo4MDgwL3Jlc291cmNlcyJdLCJzY29wZSI6WyJiYW5rYXBpLnJlYWQiXSwiY2xpZW50X2lkIjoibTJtLmNsaWVudCIsImp0aSI6IjY1NUFGNUU0OTExQTdDNjFERDREODVEQTIxRTY1MTRDIn0.NzUNZDOpbOu3aq7QhszArLllCMEiUjHJGwOeNuzUudtXXLcEBpwzd6Ac0MIY1ef76CF_FNV2mZYLF-PY0Ks1BNzWbRGNLbp5ZCbB6sjjRnIjqmEMIN_SofuRfipjwtR2wuYPzAuz2wbsf4JQXmUT7Bj0rNesxFu6T5sJxm7v0uRmWF1y8JRjrPZrzAd4li7uFai6C2tpcqL4cEAAte4boQaCxaxnMv8Z6QB_O3r5nNxbChaebjtpNSwM3PLEfMWL6Lj_aw93dT9QAM5nxC7njx6JkYxU2w6FQvWxm3XktCdGwq6ERLNK1cv-ne9i7CgByxyIw1ri6OB6aeJ1lT_OnA
+###
+POST https://{{host}}/identity-api/connect/token HTTP/1.1
+Content-Type: application/x-www-form-urlencoded
+Cache-Control: no-cache
+
+client_id={{client_id}}
+&scope={{scope}}
+&client_secret={{client_secret}}
+&grant_type={{grant_type}}
+
+###
+GET https://{{host}}/product-api/v1/product HTTP/1.1
+Authorization: bearer {{token}}
+Accept: */*
+
+###
+POST https://{{host}}/product-api/v1/product HTTP/1.1
+Authorization: bearer {{token}}
+Accept: */*
+Content-Type: application/json
+
+{
+    "name": "String",
+    "description": "Sting",
+    "price": 10
+}
+
+
+### Bank
+GET https://{{host}}/bank-api/v1/bank HTTP/1.1
+Authorization: bearer {{token}}
+Accept: */*

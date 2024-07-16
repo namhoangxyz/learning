@@ -1,0 +1,81 @@
+version: "3.8"
+networks:
+  monitoring-network:
+
+volumes:
+  pgdb-data: {}
+    
+services:
+
+  otel-collector:
+    container_name: otel-collector
+    image: otel/opentelemetry-collector-contrib:latest    
+    command: ["--config=/etc/otel-config.yaml"]
+    volumes:        
+      - ./etc/otel-config.yaml:/etc/otel-config.yaml
+    environment:    
+      - AWS_REGION=${AWS_REGION}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+    ports:
+      - "4317:4317"
+    networks:
+      - monitoring-network  
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    hostname: rabbitmq-server
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+      - "15692:15692" 
+    networks:
+      - monitoring-network
+
+  postgresql-db:
+    image: postgres:14.1-alpine
+    container_name: postgresql-db
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+    ports:
+      - '5432:5432'
+    networks:
+      - monitoring-network
+    volumes: 
+      - pgdb-data:/var/lib/postgresql/data
+      - ./etc/initdb.sh:/docker-entrypoint-initdb.d/initdb.sh
+
+
+  voting-api:
+    image: mcr.microsoft.com/dotnet/sdk:8.0
+    command: bash -c "dotnet restore && dotnet build && dotnet run  --urls http://+:5000"
+    working_dir: /app
+    volumes:
+      - ./src/VotingData:/app            
+    ports:
+      - "5000:5000"
+    depends_on:
+      - rabbitmq
+    networks:
+      - monitoring-network
+    environment:
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
+      - OTEL_SERVICE_NAME=VotingApi
+
+  queue-service:
+    image: mcr.microsoft.com/dotnet/sdk:8.0
+    command: bash -c "dotnet restore && dotnet build && dotnet run"
+    working_dir: /app
+    volumes:
+      - ./src/Worker:/app
+    depends_on:
+      - rabbitmq 
+    networks:
+      - monitoring-network
+    environment:
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
+      - OTEL_SERVICE_NAME=WorkerService
+  

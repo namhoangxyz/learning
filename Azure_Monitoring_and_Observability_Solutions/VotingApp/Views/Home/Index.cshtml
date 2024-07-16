@@ -1,0 +1,30 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="text-center">    
+    <p>Manual instrumenting ASP.NET Core with OpenTelemetry and Application Insights SDKs.</p>
+</div>
+
+<div style="margin-bottom: 20px;">
+    <button id="buttonRequest" class="btn btn-primary">Weather Forecast</button>
+    
+</div>
+<div class="alert alert-primary" role="alert" id="message"style="display: none;"></div>
+<div class="alert alert-danger" role="alert" id="error"style="display: none;"></div>
+<script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.4.1.min.js"></script>
+<script>
+    
+    $( "#buttonRequest" ).click(function() {
+        var url =window.location.origin + "/api/Metrics";
+        $( "#message" ).text("Loading...");
+        $.get(url)
+            .done(function(data) {
+                $( "#message" ).text(data).show();
+            })
+            .fail(function(error) {
+                $( "#error" ).text(JSON.stringify(error)).show();
+            })
+    });
+    
+</script>
